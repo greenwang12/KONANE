@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kōnane Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ✅ Welcome screen -->
+  <div id="homeOverlay" class="overlay">
+    <div class="title-container">
+      <img src="konane girl.png" alt="Left Character" class="character left" />
+      <div class="title-wrapper">
+        <h1 class="title">KÕNANE</h1>
+        <p class="subtitle">~ Hawaiian Strategy Game ~</p>
+      </div>
+      <img src="konane boy.png" alt="Right Character" class="character right" />
+    </div>
+
+    <div class="container">
+      <div class="controls">
+        <div class="input-group">
+          <label for="playerMode">Number of Players:</label>
+          <select id="playerMode">
+            <option value="2">2 Players</option>
+            <option value="1">1 Player vs AI</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="gridSize">Grid Size:</label>
+          <select id="gridSize">
+            <option value="6">6 x 6</option>
+            <option value="8" selected>8 x 8</option>
+            <option value="10">10 x 10</option>
+          </select>
+        </div>
+
+        <button id="startBtn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Rules Page -->
+  <div id="rulesPage" class="hidden">
+    <h2 class="title">How to Play Kōnane</h2>
+    <div class="rules-text">
+      <p><strong>🎯 Objective:</strong> Jump over and remove your opponent’s pieces. The last player able to move wins.</p>
+      <p><strong>🛠️ Setup:</strong> Fill the board in a checkerboard pattern. Black removes a piece from a corner or center. White removes one adjacent to that empty space.</p>
+      <p><strong>🎮 Gameplay:</strong> Players take turns jumping horizontally or vertically (not diagonally) over adjacent opponent pieces into empty spaces. Each jump removes the jumped piece.</p>
+      <p><strong>⛔ End:</strong> When a player has no legal move, they lose the game.</p>
+      <p><strong>💡 Note:</strong> Based on the traditional Hawaiian papamu game board.</p>
+    </div>
+    <button id="playGameBtn">Continue to Game</button>
+  </div>
+
+  <!-- ✅ Game Area -->
+  <div id="gameArea" class="hidden">
+    <h1 class="title">Kōnane</h1>
+    <p id="status">Loading...</p>
+    <div id="board" class="konane-board"></div>
+    <button id="restartBtn">Restart Game</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

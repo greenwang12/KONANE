@@ -163,8 +163,8 @@ select {
 }
 
 .piece {
-  width: 70%;
-  height: 70%;
+  width: 60%;
+  height: 60%;
   border-radius: 50%;
   margin: auto;
   top: 15%;

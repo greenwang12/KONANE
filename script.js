@@ -1,3 +1,4 @@
+// Konane Game Logic - with white/black pieces swapped
 const rulesPage = document.getElementById("rulesPage");
 const playGameBtn = document.getElementById("playGameBtn");
 
@@ -12,12 +13,12 @@ const homeOverlay = document.getElementById("homeOverlay");
 
 let BOARD_SIZE = 8;
 let board = [];
-let currentPlayer = 'black';
-let gamePhase = 'init';
+let currentPlayer = 'white';
+let gamePhase = 'init-white';
 let selected = null;
 let lastMover = null;
 let numPlayers = 2;
-let blackRemovedPos = null;
+let firstRemovedPos = null;
 
 startBtn.addEventListener("click", () => {
   homeOverlay.classList.add("fade-out");
@@ -29,21 +30,21 @@ startBtn.addEventListener("click", () => {
 
 playGameBtn.addEventListener("click", () => {
   rulesPage.classList.add("hidden");
-  homeOverlay.classList.add("hidden"); // ✅ ensure it's gone
+  homeOverlay.classList.add("hidden");
   gameArea.classList.remove("hidden");
   document.body.classList.add("game-mode");
   restartBtn.style.display = "inline-block";
 
   BOARD_SIZE = parseInt(gridSizeSelect.value);
   numPlayers = parseInt(playerModeSelect.value);
-  currentPlayer = 'black';
-  gamePhase = 'init-black';
+  currentPlayer = 'white';
+  gamePhase = 'init-white';
   selected = null;
   lastMover = null;
 
   initBoard(BOARD_SIZE);
   renderBoard();
-  statusP.textContent = "Black: Remove a center or corner piece to start";
+  statusP.textContent = "White: Remove a center or corner piece to start";
 });
 
 restartBtn.addEventListener("click", () => {
@@ -59,7 +60,7 @@ function initBoard(size) {
   for (let r = 0; r < size; r++) {
     const row = [];
     for (let c = 0; c < size; c++) {
-      row.push((r + c) % 2 === 0 ? 'black' : 'white');
+      row.push((r + c) % 2 === 0 ? 'white' : 'black');
     }
     board.push(row);
   }
@@ -97,56 +98,50 @@ function renderBoard() {
 function handleCellClick(r, c) {
   if (gamePhase === 'game-over') return;
 
-  if (gamePhase === 'init-black') {
-  if (isCornerOrCenter(r, c) && board[r][c] === 'black') {
-    board[r][c] = null;
-    blackRemovedPos = { r, c };
-    renderBoard();
-
-    if (numPlayers === 1) {
-      // AI removes adjacent white piece automatically
-     if (numPlayers === 1) {
-      statusP.textContent = "White's turn";
-      setTimeout(() => {
-      const adj = getAdjacentWhite(blackRemovedPos.r, blackRemovedPos.c);
-    if (adj) {
-      board[adj.r][adj.c] = null;
-      gamePhase = 'playing';
-      currentPlayer = 'black';
-      statusP.textContent = "Black's turn";
-    } else {
-      gamePhase = 'game-over';
-      statusP.textContent = "Game Over! No adjacent white piece. Black wins!";
-    }
-    renderBoard();
-  }, 1000); // 1 second delay
-}
-
-
-    } else {
-      gamePhase = 'init-white';
-      currentPlayer = 'white';
-      statusP.textContent = "White: Remove a white piece adjacent to the empty black piece";
-    }
-  }
-  return;
-}
-
-
   if (gamePhase === 'init-white') {
-   if (
-  board[r][c] === 'white' &&
-  blackRemovedPos &&
-  isAdjacent(r, c, blackRemovedPos.r, blackRemovedPos.c)
-   ) {
+    if (isCornerOrCenter(r, c) && board[r][c] === 'white') {
       board[r][c] = null;
-      gamePhase = 'playing';
-      currentPlayer = 'black';
-      statusP.textContent = "Black's turn";
+      firstRemovedPos = { r, c };
       renderBoard();
 
-      if (numPlayers === 1 && currentPlayer === 'white') {
-        setTimeout(aiMove, 500); // AI plays after a short delay
+      if (numPlayers === 1) {
+        statusP.textContent = "Black's turn";
+        setTimeout(() => {
+          const adj = getAdjacentPiece(firstRemovedPos.r, firstRemovedPos.c, 'black');
+          if (adj) {
+            board[adj.r][adj.c] = null;
+            gamePhase = 'playing';
+            currentPlayer = 'white';
+            statusP.textContent = "White's turn";
+          } else {
+            gamePhase = 'game-over';
+            statusP.textContent = "Game Over! No adjacent black piece. White wins!";
+          }
+          renderBoard();
+        }, 1000);
+      } else {
+        gamePhase = 'init-black';
+        currentPlayer = 'black';
+        statusP.textContent = "Black: Remove a black piece adjacent to the empty white piece";
+      }
+    }
+    return;
+  }
+
+  if (gamePhase === 'init-black') {
+    if (
+      board[r][c] === 'black' &&
+      firstRemovedPos &&
+      isAdjacent(r, c, firstRemovedPos.r, firstRemovedPos.c)
+    ) {
+      board[r][c] = null;
+      gamePhase = 'playing';
+      currentPlayer = 'white';
+      statusP.textContent = "White's turn";
+      renderBoard();
+
+      if (numPlayers === 1 && currentPlayer === 'black') {
+        setTimeout(aiMove, 500);
       }
     }
     return;
@@ -166,18 +161,18 @@ function handleCellClick(r, c) {
         selected = null;
 
         lastMover = currentPlayer;
-        currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+        currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 
         if (!hasAnyMoves(currentPlayer)) {
-        gamePhase = 'game-over';
-        statusP.textContent = `Game Over! ${capitalize(lastMover)} wins! 🎉`;
+          gamePhase = 'game-over';
+          statusP.textContent = `Game Over! ${capitalize(lastMover)} wins! 🎉`;
         } else {
-        statusP.textContent = `${capitalize(currentPlayer)}'s turn`;
-        if (numPlayers === 1 && currentPlayer === 'white') {
-        setTimeout(aiMove, 500);
-      }
-      }
-     } else {
+          statusP.textContent = `${capitalize(currentPlayer)}'s turn`;
+          if (numPlayers === 1 && currentPlayer === 'black') {
+            setTimeout(aiMove, 500);
+          }
+        }
+      } else {
         selected = null;
       }
     }
@@ -203,30 +198,22 @@ function isCornerOrCenter(r, c) {
   return corners.concat(centers).some(([rr, cc]) => rr === r && cc === c);
 }
 
-function isAdjacentToEmpty(r, c) {
-  const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
-  return dirs.some(([dr, dc]) => {
-    const nr = r + dr, nc = c + dc;
-    return isOnBoard(nr, nc) && board[nr][nc] === null;
-  });
+function isAdjacent(r1, c1, r2, c2) {
+  return (
+    (r1 === r2 && Math.abs(c1 - c2) === 1) ||
+    (c1 === c2 && Math.abs(r1 - r2) === 1)
+  );
 }
 
 function isOnBoard(r, c) {
   return r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE;
 }
 
-function isAdjacent(r1, c1, r2, c2) {
-  return (
-    (r1 === r2 && Math.abs(c1 - c2) === 1) ||  // left/right
-    (c1 === c2 && Math.abs(r1 - r2) === 1)     // up/down
-  );
-}
-
-function getAdjacentWhite(r, c) {
+function getAdjacentPiece(r, c, color) {
   const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
   for (const [dr, dc] of dirs) {
     const nr = r + dr, nc = c + dc;
-    if (isOnBoard(nr, nc) && board[nr][nc] === 'white') {
+    if (isOnBoard(nr, nc) && board[nr][nc] === color) {
       return { r: nr, c: nc };
     }
   }
@@ -234,7 +221,7 @@ function getAdjacentWhite(r, c) {
 }
 
 function getJumps(r, c) {
-  const dirs = [[-2,0],[2,0],[0,-2],[0,2]];
+  const dirs = [[-2, 0], [2, 0], [0, -2], [0, 2]];
   const jumps = [];
   for (const [dr, dc] of dirs) {
     const nr = r + dr, nc = c + dc;
@@ -264,15 +251,13 @@ function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
 
-// **Minimax** AI Move Logic
 function aiMove() {
-  if (gamePhase !== 'playing' || currentPlayer !== 'white' || numPlayers !== 1) return;
+  if (gamePhase !== 'playing' || currentPlayer !== 'black' || numPlayers !== 1) return;
 
-  // Get all possible moves for AI
   const moves = [];
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
-      if (board[r][c] === 'white') {
+      if (board[r][c] === 'black') {
         const jumps = getJumps(r, c);
         for (const jump of jumps) {
           moves.push({ from: { r, c }, to: jump });
@@ -283,44 +268,41 @@ function aiMove() {
 
   if (moves.length === 0) {
     gamePhase = 'game-over';
-    statusP.textContent = `Game Over! Black wins!`;
+    statusP.textContent = `Game Over! White wins!`;
     renderBoard();
     return;
   }
 
-  // Minimax algorithm with evaluation
   let bestMove = null;
   let bestScore = -Infinity;
 
   for (const move of moves) {
     const simulatedBoard = simulateMove(move);
-    const score = evaluateBoard(simulatedBoard, 'white');
+    const score = evaluateBoard(simulatedBoard, 'black');
     if (score > bestScore) {
       bestScore = score;
       bestMove = move;
     }
   }
 
-  // Execute the best move
   board[bestMove.to.r][bestMove.to.c] = board[bestMove.from.r][bestMove.from.c];
   board[bestMove.from.r][bestMove.from.c] = null;
   board[bestMove.to.jumped.r][bestMove.to.jumped.c] = null;
 
   lastMover = currentPlayer;
-  currentPlayer = 'black';
+  currentPlayer = 'white';
 
-  if (!hasAnyMoves('black')) {
-  gamePhase = 'game-over';
-  statusP.textContent = `Game Over! ${capitalize(lastMover)} wins! 🎉`;
-} else {
-  statusP.textContent = `Black's turn`;
-}
+  if (!hasAnyMoves('white')) {
+    gamePhase = 'game-over';
+    statusP.textContent = `Game Over! ${capitalize(lastMover)} wins! 🎉`;
+  } else {
+    statusP.textContent = `White's turn`;
+  }
   renderBoard();
 }
 
 function simulateMove(move) {
-  // Create a simulated board after the move
-  const simulatedBoard = JSON.parse(JSON.stringify(board));  // deep copy
+  const simulatedBoard = JSON.parse(JSON.stringify(board));
   simulatedBoard[move.to.r][move.to.c] = simulatedBoard[move.from.r][move.from.c];
   simulatedBoard[move.from.r][move.from.c] = null;
   simulatedBoard[move.to.jumped.r][move.to.jumped.c] = null;
@@ -329,15 +311,13 @@ function simulateMove(move) {
 
 function evaluateBoard(board, player) {
   let score = 0;
-
-  // Evaluate pieces remaining
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
-      if (board[r][c] === player) score += 1;
-      if (board[r][c] && board[r][c] !== player) score -= 1;
+      if (board[r][c] === player) score++;
+      if (board[r][c] && board[r][c] !== player) score--;
     }
   }
-
   // More sophisticated evaluation can be added (e.g., blocking moves, corner control)
   return score;
 }
+

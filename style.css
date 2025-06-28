@@ -183,6 +183,7 @@ select {
 
 #gameArea {
    padding: 40px 0;
+    margin-top: -5px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -332,4 +333,30 @@ select {
 #homeOverlay {
   opacity: 1;
   transition: opacity 0.4s ease;
+}
+
+.rules-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;      /* center vertically */
+  align-items: center;          /* center horizontally */
+  background: url('kobg.png') no-repeat center center;
+  background-size: cover;
+  margin-bottom: 30px;
+}
+
+.rules-content {
+  max-width: 650px;
+  padding: 40px 30px;
+  text-align: center;
+  color: #222;
+  background:transparent;
+  border-radius: 20px;
+  box-shadow: none;
+  transform: translateY(-40px);
 }

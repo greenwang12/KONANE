@@ -43,10 +43,9 @@ body.game-mode::before {
   border-radius: 0;
   display: flex;
   justify-content: center;
-  margin-top: 5px;
+  margin-top: 23px;
   width: 100%;
   max-width: 420px;
-  transform: translateX(-20px); /* ✅ Nudge container slightly left */
 }
 
 .title {
